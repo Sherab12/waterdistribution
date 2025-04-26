@@ -11,7 +11,7 @@ export default function SchedulePage() {
 
     return (
         <div className="flex">
-            <Navbar activePage="schedule" />
+            <Navbar activePage="schedules" />
             
         </div>
     );

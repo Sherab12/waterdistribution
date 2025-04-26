@@ -1,47 +1,70 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
 
 import Navbar from "src/components/navbar";
-import DeviceHeader from "src/components/devices/Header"; // 🔥 Similar to sources/Header
-import DeviceTable from "src/components/devices/DeviceTable"; // 🔥 Similar to sources/SourceTable
+import Header from "src/components/devices/Header"; // if you want top search bar like sources
+import DeviceTabs from "src/components/devices/Tabs";
+import DeviceTable from "src/components/devices/DeviceTable";
 
 export default function DevicesPage() {
-    const [devices, setDevices] = useState([]);
+    const [sensors, setSensors] = useState([]);
+    const [valves, setValves] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [topSearch, setTopSearch] = useState("");
+    const [activeTab, setActiveTab] = useState<"sensors" | "valves">("sensors");
     const router = useRouter();
 
     useEffect(() => {
+        // Fetch sensors
         axios
-        .get("/api/sensors") // 👈 Fetching devices (your "sensors")
-        .then((response) => setDevices(response.data))
-        .catch((error) => {
-            console.error(error);
-            toast.error("Failed to load devices");
-        });
+            .get("/api/sensors")
+            .then((res) => setSensors(res.data))
+            .catch((err) => {
+                console.error(err);
+                toast.error("Failed to load sensors");
+            });
+
+        // Fetch valves
+        axios
+            .get("/api/valve")
+            .then((res) => setValves(res.data))
+            .catch((err) => {
+                console.error(err);
+                toast.error("Failed to load valves");
+            });
     }, []);
 
-    const filteredDevices = devices.filter((device: any) =>
-        device.topic.toLowerCase().includes(searchTerm.toLowerCase())
+    const filteredSensors = sensors.filter(
+        (d) =>
+            (d.type === "flow" || d.type === "pressure") &&
+            d.topic.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const filteredValves = valves.filter(
+        (d) => d.topic.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return (
         <div className="flex">
-        <Navbar activePage="devices" />
-        <main className="flex-1 p-8 ml-[250px]">
-            <DeviceHeader topSearch={topSearch} setTopSearch={setTopSearch} />
-            <DeviceTable
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            filteredDevices={filteredDevices}
-            router={router}
-            setDevices={setDevices} // ✨ For deleting/editing
-            />
-        </main>
+            <Navbar activePage="devices" />
+            <main className="flex-1 p-8 ml-[250px]">
+                <Header topSearch={topSearch} setTopSearch={setTopSearch} />
+                <DeviceTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+                <DeviceTable
+                    activeTab={activeTab}
+                    searchTerm={searchTerm}
+                    setSearchTerm={setSearchTerm}
+                    filteredSensors={filteredSensors}
+                    filteredValves={filteredValves}
+                    router={router}
+                    setDevices={activeTab === "valves" ? setValves : setSensors}
+                />
+
+            </main>
         </div>
     );
 }
