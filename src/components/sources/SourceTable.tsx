@@ -168,6 +168,7 @@ const SourceTable: React.FC<SourceTableProps> = ({
                     <th className="py-3 px-4 text-gray-500">Name</th>
                     <th className="py-3 px-4 text-gray-500">Size (sq km)</th>
                     <th className="py-3 px-4 text-gray-500">Source</th>
+                    <th className="py-3 px-4 text-gray-500">Lora</th>
                     <th className="py-3 px-4 text-gray-500">Created</th>
                     <th className="py-3 px-4 text-gray-500">Actions</th>
                 </tr>
@@ -178,6 +179,7 @@ const SourceTable: React.FC<SourceTableProps> = ({
                     <td className="py-2 px-4 font-bold">{field.name}</td>
                     <td className="py-2 px-4">{field.size}</td>
                     <td className="py-2 px-4">{field.sourceId?.name}</td>
+                    <td className="py-2 px-4">{field.loraId}</td>
                     <td className="py-2 px-4">
                         {new Date(field.createdAt).toLocaleDateString()}
                     </td>

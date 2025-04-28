@@ -16,7 +16,9 @@ export default function EditFieldPage() {
         name: "",
         size: "",
         sourceId: "",
+        loraId: "",   // <-- ADD this
     });
+    
 
     const [sources, setSources] = useState([]);
 
@@ -35,7 +37,9 @@ export default function EditFieldPage() {
                 name: fieldData.name || "",
                 size: fieldData.size || "",
                 sourceId: typeof fieldData.sourceId === "object" ? fieldData.sourceId._id : fieldData.sourceId || "",
+                loraId: fieldData.loraId || "",  // <-- ADD this
             });
+            
             
             }
         } catch (error) {
@@ -113,6 +117,19 @@ export default function EditFieldPage() {
                 </select>
 
             </div>
+
+            <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">LoRa ID</label>
+                <input
+                    name="loraId"
+                    value={field.loraId}
+                    onChange={handleChange}
+                    placeholder="LoRa ID (e.g., LORA1, LORA2)"
+                    required
+                    className="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+            </div>
+
 
             <div className="flex gap-4">
                 <button

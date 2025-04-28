@@ -59,7 +59,7 @@ const Navbar = ({ activePage }) => {
                         </button>
                     </li>
                     <li className="mb-2">
-                        <button onClick={() => router.push("/command-center")} className={`flex items-center px-4 py-2 text-sm rounded-sm w-full ${isActive('command-center')}`}>
+                        <button onClick={() => router.push("/command")} className={`flex items-center px-4 py-2 text-sm rounded-sm w-full ${isActive('command-center')}`}>
                             <FaShieldAlt className="mr-2" /> Command Center
                         </button>
                     </li>
