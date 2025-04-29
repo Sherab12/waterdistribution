@@ -54,7 +54,7 @@ const Navbar = ({ activePage }) => {
                         </button>
                     </li>
                     <li className="mb-2">
-                        <button onClick={() => router.push("/analytics")} className={`flex items-center px-4 py-2 text-sm rounded-sm w-full ${isActive('analytics')}`}>
+                        <button onClick={() => router.push("/analysis")} className={`flex items-center px-4 py-2 text-sm rounded-sm w-full ${isActive('analysis')}`}>
                             <FaChartLine className="mr-2" /> Analytics
                         </button>
                     </li>

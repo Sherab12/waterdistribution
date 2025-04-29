@@ -95,7 +95,10 @@ const DeviceTable: React.FC<DeviceTableProps> = ({
             <thead className="bg-gray-100">
                 <tr>
                 <th className="py-3 px-4 text-gray-500">Topic</th>
-                <th className="py-3 px-4 text-gray-500">Type</th>
+                {activeTab === "sensors" && (
+                    <th className="py-3 px-4 text-gray-500">Type</th>
+                )}
+
                 <th className="py-3 px-4 text-gray-500">Field</th>
                 <th className="py-3 px-4 text-gray-500">Created</th>
                 <th className="py-3 px-4 text-gray-500">Actions</th>
@@ -105,7 +108,10 @@ const DeviceTable: React.FC<DeviceTableProps> = ({
                 {list.map((device) => (
                 <tr key={device._id} className="border-b">
                     <td className="py-2 px-4 font-bold">{device.topic}</td>
-                    <td className="py-2 px-4 capitalize">{device.type}</td>
+                    {activeTab === "sensors" && (
+                        <td className="py-2 px-4 capitalize">{device.type}</td>
+                    )}
+
                     <td className="py-2 px-4">{device.fieldId?.name || "N/A"}</td>
                     <td className="py-2 px-4">
                     {new Date(device.createdAt).toLocaleDateString()}
