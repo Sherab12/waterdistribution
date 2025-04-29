@@ -59,7 +59,7 @@ export default function ProfilePage() {
         <div className="flex-1">
           <div className="flex justify-between items-center mb-6">
             <div>
-              <h1 className="text-3xl font-bold">Dashboard</h1>
+              <h1 className="text-xl font-bold">Dashboard</h1>
               <p className="text-gray-500 text-sm mt-1">Overview of your irrigation systems</p>
             </div>
 
