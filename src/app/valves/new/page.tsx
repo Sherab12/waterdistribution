@@ -37,7 +37,7 @@ export default function NewValvePage() {
         <div className="flex">
         <Navbar activePage="devices" />
         <main className="flex-1 p-8 ml-[250px]">
-            <h1 className="text-2xl font-semibold mb-6 text-gray-800">Add New Valve</h1>
+            <h1 className="text-xl font-semibold mb-6 text-gray-800">Add New Valve</h1>
             <form onSubmit={handleSubmit} className="flex flex-col gap-4 max-w-md">
             <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Topic</label>
@@ -67,7 +67,7 @@ export default function NewValvePage() {
                 </select>
             </div>
 
-            <div className="flex gap-4">
+            <div className="flex gap-4 justify-end">
                 <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
                 Save Valve
                 </button>

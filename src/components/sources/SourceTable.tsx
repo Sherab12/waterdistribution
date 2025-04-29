@@ -98,12 +98,12 @@ const SourceTable: React.FC<SourceTableProps> = ({
             <table className="min-w-full text-left border-separate border-spacing-y-2">
                 <thead className="bg-gray-100">
                 <tr>
-                    <th className="py-3 px-4 text-gray-500">Name</th>
-                    <th className="py-3 px-4 text-gray-500">Location</th>
-                    <th className="py-3 px-4 text-gray-500">Description</th>
-                    <th className="py-3 px-4 text-gray-500">Fields</th>
-                    <th className="py-3 px-4 text-gray-500">Created</th>
-                    <th className="py-3 px-4 text-gray-500">Actions</th>
+                    <th className="py-3 px-4 text-gray-500 text-sm">Name</th>
+                    <th className="py-3 px-4 text-gray-500 text-sm">Location</th>
+                    <th className="py-3 px-4 text-gray-500 text-sm">Description</th>
+                    <th className="py-3 px-4 text-gray-500 text-sm">Fields</th>
+                    <th className="py-3 px-4 text-gray-500 text-sm">Created</th>
+                    <th className="py-3 px-4 text-gray-500 text-sm">Actions</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -111,19 +111,19 @@ const SourceTable: React.FC<SourceTableProps> = ({
                     const count = fieldCountMap[source._id] || 0;
                     return (
                     <tr key={source._id} className="border-b">
-                        <td className="py-2 px-4 font-bold">{source.name}</td>
-                        <td className="py-2 px-4">{source.location}</td>
-                        <td className="py-2 px-4">{source.description}</td>
-                        <td className="py-2 px-4">
+                        <td className="py-2 px-4 font-bold text-sm">{source.name}</td>
+                        <td className="py-2 px-4 text-sm">{source.location}</td>
+                        <td className="py-2 px-4 text-sm">{source.description}</td>
+                        <td className="py-2 px-4 text-sm">
                         <span className="bg-gray-200 px-2 py-1 rounded-full text-sm">
                             {count}
                         </span>
                         </td>
-                        <td className="py-2 px-4">
+                        <td className="py-2 px-4 text-sm">
                         {new Date(source.createdAt).toLocaleDateString()}
                         </td>
                         <td className="py-2 px-4">
-                        <div className="flex gap-3">
+                        <div className="flex gap-3 text-sm">
                             <button
                             onClick={() =>
                                 router.push(`/fields/new?sourceId=${source._id}`)
@@ -165,22 +165,22 @@ const SourceTable: React.FC<SourceTableProps> = ({
             <table className="min-w-full text-left border-separate border-spacing-y-2">
                 <thead className="bg-gray-100">
                 <tr>
-                    <th className="py-3 px-4 text-gray-500">Name</th>
-                    <th className="py-3 px-4 text-gray-500">Size (sq km)</th>
-                    <th className="py-3 px-4 text-gray-500">Source</th>
-                    <th className="py-3 px-4 text-gray-500">Lora</th>
-                    <th className="py-3 px-4 text-gray-500">Created</th>
-                    <th className="py-3 px-4 text-gray-500">Actions</th>
+                    <th className="py-3 px-4 text-gray-500 text-sm">Name</th>
+                    <th className="py-3 px-4 text-gray-500 text-sm">Size (sq km)</th>
+                    <th className="py-3 px-4 text-gray-500 text-sm">Source</th>
+                    <th className="py-3 px-4 text-gray-500 text-sm">Lora</th>
+                    <th className="py-3 px-4 text-gray-500 text-sm">Created</th>
+                    <th className="py-3 px-4 text-gray-500 text-sm">Actions</th>
                 </tr>
                 </thead>
                 <tbody>
                 {filteredFields.map((field) => (
                     <tr key={field._id} className="border-b">
-                    <td className="py-2 px-4 font-bold">{field.name}</td>
-                    <td className="py-2 px-4">{field.size}</td>
-                    <td className="py-2 px-4">{field.sourceId?.name}</td>
-                    <td className="py-2 px-4">{field.loraId}</td>
-                    <td className="py-2 px-4">
+                    <td className="py-2 px-4 font-bold text-sm">{field.name}</td>
+                    <td className="py-2 px-4 text-sm">{field.size}</td>
+                    <td className="py-2 px-4 text-sm">{field.sourceId?.name}</td>
+                    <td className="py-2 px-4 text-sm">{field.loraId}</td>
+                    <td className="py-2 px-4 text-sm">
                         {new Date(field.createdAt).toLocaleDateString()}
                     </td>
                     <td className="py-2 px-4">

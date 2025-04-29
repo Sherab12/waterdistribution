@@ -47,30 +47,30 @@ export default function CommandTable({ loading, filteredCommands, onDelete }: Co
         <table className="w-full table-auto">
             <thead>
             <tr className="bg-gray-100">
-                <th className="p-2 text-left">Field</th>
-                <th className="p-2 text-left">Command</th>
-                <th className="p-2 text-left">Sent</th>
-                <th className="p-2 text-left">Status</th>
-                <th className="p-2 text-left">Actions</th>
+                <th className="p-2 text-left text-sm">Field</th>
+                <th className="p-2 text-left text-sm">Command</th>
+                <th className="p-2 text-left text-sm">Sent</th>
+                <th className="p-2 text-left text-sm">Status</th>
+                <th className="p-2 text-left text-sm">Actions</th>
             </tr>
             </thead>
             <tbody>
             {loading ? (
                 <tr>
-                <td colSpan={5} className="text-center p-6">Loading...</td>
+                <td colSpan={5} className="text-center p-6 text-sm">Loading...</td>
                 </tr>
             ) : filteredCommands.length === 0 ? (
                 <tr>
-                <td colSpan={5} className="text-center p-6">No commands found.</td>
+                <td colSpan={5} className="text-center p-6 text-sm">No commands found.</td>
                 </tr>
             ) : (
                 filteredCommands.map((cmd) => (
                 <tr key={cmd._id} className="border-t">
-                    <td className="p-2">{cmd.fieldId?.name || "Unknown"}</td>
-                    <td className="p-2">{cmd.command}</td>
-                    <td className="p-2">{new Date(cmd.createdAt).toLocaleString()}</td>
-                    <td className="p-2 capitalize">{cmd.status}</td>
-                    <td className="p-2">
+                    <td className="p-2 text-sm">{cmd.fieldId?.name || "Unknown"}</td>
+                    <td className="p-2 text-sm">{cmd.command}</td>
+                    <td className="p-2 text-sm">{new Date(cmd.createdAt).toLocaleString()}</td>
+                    <td className="p-2 capitalize text-sm">{cmd.status}</td>
+                    <td className="p-2 text-sm">
                     <button
                         onClick={() => openConfirm(cmd._id)}
                         className="text-red-600 hover:text-red-800 justify-center"
