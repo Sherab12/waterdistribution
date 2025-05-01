@@ -65,7 +65,7 @@ export default function CommandCenterPage() {
         <p className="text-gray-600 mb-6 text-sm">Send commands and monitor device responses</p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <QuickActions sendQuickCommand={sendQuickCommand} sending={sending} />
+          {/* Command History takes full width on small, spans 2 cols on medium */}
           <div className="md:col-span-2 bg-white p-6 rounded-lg shadow">
             <CommandFilters 
               searchQuery={searchQuery}
@@ -73,8 +73,18 @@ export default function CommandCenterPage() {
               statusFilter={statusFilter}
               setStatusFilter={setStatusFilter}
             />
-            <CommandTable loading={loading} filteredCommands={filteredCommands} onDelete={fetchCommands}/>
+            <CommandTable 
+              loading={loading} 
+              filteredCommands={filteredCommands} 
+              onDelete={fetchCommands}
+            />
           </div>
+
+          {/* Quick actions now on right */}
+          <QuickActions 
+            sendQuickCommand={sendQuickCommand} 
+            sending={sending} 
+          />
         </div>
       </div>
     </div>

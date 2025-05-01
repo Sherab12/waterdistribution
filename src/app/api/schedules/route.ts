@@ -1,6 +1,8 @@
 import { connect } from "src/lib/db";
 import Schedule from "@/models/Schedule";
+import Field from "@/models/Field";
 import { NextRequest, NextResponse } from "next/server";
+import client from "src/lib/mqtt";
 
 export async function POST(req: NextRequest) {
   await connect();
@@ -21,12 +23,34 @@ export async function POST(req: NextRequest) {
       status: "pending",
     });
 
+    const field = await Field.findById(fieldId);
+    if (!field || !field.loraId) {
+      return NextResponse.json({ message: "Field or loraId not found" }, { status: 404 });
+    }
+
+    const payload = {
+      loraId: field.loraId,
+      startTime: schedule.startTime.toISOString(),
+      endTime: schedule.endTime.toISOString(),
+      amountLiters: schedule.amountLiters,
+    };
+
+    const topic = "source1/field/lora/schedule";
+    const message = JSON.stringify(payload);
+
+    if (!client.connected) {
+      client.on("connect", () => client.publish(topic, message));
+    } else {
+      client.publish(topic, message);
+    }
+
     return NextResponse.json(schedule, { status: 201 });
   } catch (error) {
     console.error("Error creating schedule:", error);
     return NextResponse.json({ message: "Server error" }, { status: 500 });
   }
 }
+
 
 export async function GET() {
   await connect();

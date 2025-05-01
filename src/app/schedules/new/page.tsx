@@ -37,8 +37,8 @@ export default function NewSchedulePage() {
         try {
         await axios.post("/api/schedules", {
             fieldId,
-            startTime,
-            endTime,
+            startTime, // Use as-is (local time)
+            endTime,   // Use as-is (local time)
             amountLiters: Number(amountLiters),
         });
 
@@ -49,7 +49,6 @@ export default function NewSchedulePage() {
     };
 
     const handleCancel = () => {
-        // Navigate the user back to the schedules page when cancel is clicked
         router.push("/schedules");
     };
 
@@ -113,7 +112,6 @@ export default function NewSchedulePage() {
             </div>
 
             <div className="flex justify-end gap-4">
-                {/* Create button first, then Cancel button */}
                 <button
                 type="submit"
                 className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
@@ -122,7 +120,7 @@ export default function NewSchedulePage() {
                 </button>
                 <button
                 type="button"
-                onClick={handleCancel} // Call the handleCancel function
+                onClick={handleCancel}
                 className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 transition"
                 >
                 Cancel
