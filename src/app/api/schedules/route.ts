@@ -3,6 +3,7 @@ import Schedule from "@/models/Schedule";
 import Field from "@/models/Field";
 import { NextRequest, NextResponse } from "next/server";
 import client from "src/lib/mqtt";
+import { DateTime } from "luxon";
 
 export async function POST(req: NextRequest) {
   await connect();
@@ -30,8 +31,8 @@ export async function POST(req: NextRequest) {
 
     const payload = {
       loraId: field.loraId,
-      startTime: schedule.startTime.toISOString(),
-      endTime: schedule.endTime.toISOString(),
+      startTime: DateTime.fromJSDate(schedule.startTime).toUTC().setZone("Asia/Thimphu").toFormat("yyyy-MM-dd'T'HH:mm:ssZZ"),
+      endTime: DateTime.fromJSDate(schedule.endTime).toUTC().setZone("Asia/Thimphu").toFormat("yyyy-MM-dd'T'HH:mm:ssZZ"),
       amountLiters: schedule.amountLiters,
     };
 

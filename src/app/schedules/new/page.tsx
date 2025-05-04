@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import Navbar from "src/components/navbar";
+import { DateTime } from "luxon";
 
 interface Field {
     _id: string;
@@ -33,20 +34,31 @@ export default function NewSchedulePage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
+    
         try {
-        await axios.post("/api/schedules", {
-            fieldId,
-            startTime, // Use as-is (local time)
-            endTime,   // Use as-is (local time)
-            amountLiters: Number(amountLiters),
-        });
-
-        router.push("/schedules");
+            const start = DateTime.fromISO(startTime, { zone: 'local' })
+                .setZone("Asia/Thimphu")
+                .toFormat("yyyy-MM-dd'T'HH:mm:ssZZ");
+    
+            const end = DateTime.fromISO(endTime, { zone: 'local' })
+                .setZone("Asia/Thimphu")
+                .toFormat("yyyy-MM-dd'T'HH:mm:ssZZ");
+    
+            await axios.post("/api/schedules", {
+                fieldId,
+                startTime: start, // ex: 2025-05-01T16:00:00+06:00
+                endTime: end,
+                amountLiters: Number(amountLiters),
+            });
+    
+            router.push("/schedules");
         } catch (err) {
-        console.error("Failed to create schedule:", err);
+            console.error("Failed to create schedule:", err);
         }
     };
+    
+    
+    
 
     const handleCancel = () => {
         router.push("/schedules");
