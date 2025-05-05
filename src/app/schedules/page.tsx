@@ -110,8 +110,8 @@ export default function SchedulePage() {
                 <p className="text-center text-gray-500 py-4">No schedules found.</p>
             ) : (
                 <div className="overflow-x-auto">
-                <table className="min-w-full text-sm">
-                    <thead className="bg-gray-100 text-gray-700">
+                <table className="min-w-full  text-sm">
+                    <thead className="bg-gray-100  text-gray-700">
                     <tr>
                         <th className="p-3 text-left">Field</th>
                         <th className="p-3 text-left">Start</th>

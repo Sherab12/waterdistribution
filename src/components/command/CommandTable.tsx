@@ -44,7 +44,7 @@ export default function CommandTable({ loading, filteredCommands, onDelete }: Co
 
     return (
         <div className="overflow-x-auto">
-        <table className="w-full table-auto">
+        <table className="w-full text-sm table-auto">
             <thead>
             <tr className="bg-gray-100">
                 <th className="p-2 text-left text-sm">Field</th>

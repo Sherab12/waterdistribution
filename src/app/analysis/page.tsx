@@ -1,143 +1,69 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Navbar from "../../components/navbar";
+import useSensorData from "../../components/analysis/useSensorData";
+import SearchFilterBar from "../../components/analysis/SearchFilterBar";
+import SensorDataTable from "../../components/analysis/SensorDataTable";
+import SensorGraph from "../../components/analysis/SensorGraph";
+import { format } from "date-fns";
 
 export default function AnalysisPage() {
-  const [messages, setMessages] = useState<any[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
+  const { sensorData, loading } = useSensorData();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sensorTypeFilter, setSensorTypeFilter] = useState("All");
 
-  // Derived analytics state
-  const [analysis, setAnalysis] = useState({
-    avgFlow: 0,
-    totalWater: 0,
-    minPressure: 0,
-    maxPressure: 0,
+  const filteredData = sensorData.filter((entry) => {
+    const matchesSearch =
+      entry.sensorId?.fieldId?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false;
+    const matchesSensorType =
+      sensorTypeFilter === "All" || entry.sensorId?.type === sensorTypeFilter;
+    return matchesSearch && matchesSensorType;
   });
 
-  useEffect(() => {
-    const fetchMessages = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await fetch("/api/lora");
-        if (!res.ok) {
-          throw new Error("Failed to fetch data from the server");
-        }
-        const data = await res.json();
-
-        // Filter for latest message per source
-        const latestBySource: Record<string, any> = {};
-        data.forEach((msg: any) => {
-          const existing = latestBySource[msg.source];
-          if (
-            !existing ||
-            new Date(msg.timestamp) > new Date(existing.timestamp)
-          ) {
-            latestBySource[msg.source] = msg;
-          }
+  const groupByField = (type) => {
+    const grouped = {};
+    sensorData
+      .filter((d) => d.sensorId?.type === type)
+      .forEach((d) => {
+        const field = d.sensorId?.fieldId?.name || "Unknown";
+        if (!grouped[field]) grouped[field] = [];
+        grouped[field].push({
+          value: Number(d.value),
+          timestamp: format(new Date(d.timestamp), "HH:mm:ss"),
         });
-
-        const filtered = Object.values(latestBySource);
-        setMessages(filtered);
-
-        // Calculate basic analysis
-        const flows: number[] = [];
-        const pressures: number[] = [];
-        let total = 0;
-
-        filtered.forEach((msg: any) => {
-          const flowMatch = msg.data?.match(/Flow: ([\d.]+) L\/min/);
-          const pressureMatch = msg.data?.match(/Pressure: ([-\d.]+) psi/);
-          const totalMatch = msg.data?.match(/TotalDelivered: ([\d.]+) L/);
-
-          if (flowMatch?.[1]) flows.push(parseFloat(flowMatch[1]));
-          if (pressureMatch?.[1]) pressures.push(parseFloat(pressureMatch[1]));
-          if (totalMatch?.[1]) total += parseFloat(totalMatch[1]);
-        });
-
-        const avgFlow = flows.length
-          ? (flows.reduce((a, b) => a + b, 0) / flows.length).toFixed(2)
-          : "0";
-
-        const minPressure = pressures.length
-          ? Math.min(...pressures).toFixed(2)
-          : "0";
-        const maxPressure = pressures.length
-          ? Math.max(...pressures).toFixed(2)
-          : "0";
-
-        setAnalysis({
-          avgFlow: Number(avgFlow),
-          totalWater: Number(total.toFixed(2)),
-          minPressure: Number(minPressure),
-          maxPressure: Number(maxPressure),
-        });
-      } catch (err) {
-        console.error("Failed to fetch MQTT messages:", err);
-        setError("Error fetching data. Please try again.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchMessages();
-    const interval = setInterval(fetchMessages, 5000);
-    return () => clearInterval(interval);
-  }, []);
+      });
+    return grouped;
+  };
 
   return (
-    <div className="flex w-full">
+    <div className="flex w-full flex-col">
       <Navbar activePage="analysis" />
 
-      <main className="p-6 w-full ml-64">
-        <h1 className="text-2xl font-bold mb-4">Sensor Data (Live Feed)</h1>
-
-        {loading && <div>Loading...</div>}
-        {error && <div className="text-red-500">{error}</div>}
-
-        <div className="overflow-x-auto">
-          <table className="min-w-full table-auto border border-gray-300">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="px-4 py-2 border">Source</th>
-                <th className="px-4 py-2 border">Flow (L/min)</th>
-                <th className="px-4 py-2 border">Pressure (psi)</th>
-                <th className="px-4 py-2 border">Total Delivered (L)</th>
-                <th className="px-4 py-2 border">Time</th>
-              </tr>
-            </thead>
-            <tbody>
-              {messages.map((msg, idx) => {
-                const flowMatch = msg.data?.match(/Flow: ([\d.]+) L\/min/);
-                const pressureMatch = msg.data?.match(/Pressure: ([-\d.]+) psi/);
-                const totalMatch = msg.data?.match(/TotalDelivered: ([\d.]+) L/);
-
-                return (
-                  <tr key={idx} className="border-t">
-                    <td className="px-4 py-2 border">{msg.source}</td>
-                    <td className="px-4 py-2 border">{flowMatch?.[1] || "N/A"}</td>
-                    <td className="px-4 py-2 border">{pressureMatch?.[1] || "N/A"}</td>
-                    <td className="px-4 py-2 border">{totalMatch?.[1] || "N/A"}</td>
-                    <td className="px-4 py-2 border">{new Date(msg.timestamp).toLocaleString()}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+      <div className="min-h-screen p-6 text-gray-900 ml-64">
+        <div className="mb-6">
+          <h1 className="text-xl font-bold">Analysis</h1>
+          <p className="text-gray-600 text-sm">Monitor latest irrigation sensor readings.</p>
         </div>
 
-        {/* 📊 Real-time Analysis Summary */}
-        <div className="mt-8 bg-white p-4 rounded-xl shadow-md w-full max-w-3xl">
-          <h2 className="text-xl font-semibold mb-4">📈 Live Summary</h2>
-          <ul className="space-y-2 text-gray-700">
-            <li><strong>Average Flow Rate:</strong> {analysis.avgFlow} L/min</li>
-            <li><strong>Total Water Delivered:</strong> {analysis.totalWater} L</li>
-            <li><strong>Pressure Range:</strong> {analysis.minPressure} - {analysis.maxPressure} psi</li>
-          </ul>
+        <SearchFilterBar
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          sensorTypeFilter={sensorTypeFilter}
+          setSensorTypeFilter={setSensorTypeFilter}
+          onRefresh={() => window.location.reload()}
+        />
+
+        <div className="flex flex-col md:flex-row gap-6">
+          <div className="w-full md:w-2/3">
+            <SensorDataTable data={filteredData} loading={loading} />
+          </div>
+          <div className="w-full md:w-1/3 flex flex-col gap-4">
+            <SensorGraph title="Flow Volume (Last)" groupedData={groupByField("flow")} />
+            <SensorGraph title="Pressure (Last)" groupedData={groupByField("pressure")} />
+          </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

@@ -91,7 +91,7 @@ const DeviceTable: React.FC<DeviceTableProps> = ({
 
         {/* Device Table */}
         <div className="overflow-x-auto">
-            <table className="min-w-full text-left border-separate border-spacing-y-2">
+            <table className="min-w-full text-left text-sm border-separate border-spacing-y-2">
             <thead className="bg-gray-100">
                 <tr>
                 <th className="py-3 px-4 text-gray-500 text-sm">Topic</th>

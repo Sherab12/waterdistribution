@@ -14,41 +14,68 @@ interface Message {
   snr: number;
   timestamp: string;
 }
+interface Field {
+  _id: string;
+  name: string;
+  loraId: string;
+}
+
+
 
 export default function ProfilePage() {
   const [latestMessages, setLatestMessages] = useState<Record<string, Message>>({});
+  const [fields, setFields] = useState<Field[]>([]);
 
   useEffect(() => {
-    async function fetchMessages() {
+    async function fetchData() {
       try {
-        const res = await fetch("/api/lora", { cache: "no-store" });
-        const data = await res.json();
-
-        if (data.length > 0) {
+        const [msgRes, fieldRes] = await Promise.all([
+          fetch("/api/lora", { cache: "no-store" }),
+          fetch("/api/fields", { cache: "no-store" })
+        ]);
+        const messages = await msgRes.json();
+        const fields = await fieldRes.json();
+  
+        setFields(fields);
+  
+        if (messages.length > 0) {
           const updatedMessages: Record<string, Message> = {};
-
-          data.forEach((msg: Message) => {
-            const source = msg.source;
-            updatedMessages[source] = {
+  
+          messages.forEach((msg: Message) => {
+            updatedMessages[msg.source] = {
               ...msg,
               timestamp: msg.timestamp || new Date().toISOString(),
             };
           });
-
+  
           setLatestMessages(updatedMessages);
         }
       } catch (error) {
-        console.error("Failed to fetch messages:", error);
+        console.error("Failed to fetch:", error);
       }
     }
 
-    fetchMessages();
-    const interval = setInterval(fetchMessages, 1000);
-
+    
+    
+  
+    fetchData();
+    const interval = setInterval(fetchData, 1000);
+  
     return () => clearInterval(interval);
   }, []);
+  
 
   const sources = Object.keys(latestMessages);
+
+  function getFieldNameFromSource(source: string): string {
+    if (!source) return "";
+    const field = fields.find(
+      (f) => f.loraId?.toLowerCase() === source.toLowerCase()
+    );
+    return field?.name || source;
+  }
+  
+  
 
   return (
     <div className="flex flex-row min-h-screen bg-white">
@@ -77,8 +104,14 @@ export default function ProfilePage() {
           {sources.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {sources.map((source) => (
-                <DashboardCard key={source} source={source} message={latestMessages[source]} />
+                <DashboardCard
+                  key={source}
+                  source={getFieldNameFromSource(source)} // show field name instead of loraId
+                  message={latestMessages[source]}
+                />
               ))}
+
+
             </div>
           ) : (
             <p className="text-gray-500">Waiting for LoRa data...</p>
