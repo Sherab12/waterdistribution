@@ -1,8 +1,26 @@
 "use client";
-import React from "react";
-import { Search } from "lucide-react";
 
-export default function SearchFilterBar({ searchQuery, setSearchQuery, sensorTypeFilter, setSensorTypeFilter, onRefresh }) {
+import React from "react";
+import { Search, RefreshCcw, Eye } from "lucide-react";
+import { useRouter } from "next/navigation";
+
+interface Props {
+    searchQuery: string;
+    setSearchQuery: (val: string) => void;
+    sensorTypeFilter: string;
+    setSensorTypeFilter: (val: string) => void;
+    onRefresh: () => void;
+}
+
+export default function SearchFilterBar({
+    searchQuery,
+    setSearchQuery,
+    sensorTypeFilter,
+    setSensorTypeFilter,
+    onRefresh,
+    }: Props) {
+    const router = useRouter();
+
     return (
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
         <div className="flex flex-col md:flex-row gap-4 w-full md:w-2/3">
@@ -31,12 +49,23 @@ export default function SearchFilterBar({ searchQuery, setSearchQuery, sensorTyp
             </select>
         </div>
 
-        <button
+        <div className="flex gap-3">
+            <button
+            onClick={() => router.push("/viewLiveData")}
+            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+            >
+            <Eye className="w-4 h-4" />
+            View Live Data
+            </button>
+
+            <button
             onClick={onRefresh}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 w-fit"
-        >
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+            <RefreshCcw className="w-4 h-4" />
             Refresh
-        </button>
+            </button>
+        </div>
         </div>
     );
 }

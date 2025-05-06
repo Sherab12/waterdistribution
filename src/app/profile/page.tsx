@@ -5,6 +5,8 @@ import Navbar from "../../components/navbar";
 import DashboardCard from "src/components/profile/DashboardCard";
 import CalendarWidget from "../../components/profile/CalendarWidget";
 import AlertsWidget from "../../components/profile/AlertsWidget";
+import LatestSchedulesWidget from "../../components/profile/LatestSchedulesWidget";
+import DashboardGraphWidget from "../../components/profile/DashboardGraphWidget";
 
 interface Message {
   topic: string;
@@ -14,13 +16,12 @@ interface Message {
   snr: number;
   timestamp: string;
 }
+
 interface Field {
   _id: string;
   name: string;
   loraId: string;
 }
-
-
 
 export default function ProfilePage() {
   const [latestMessages, setLatestMessages] = useState<Record<string, Message>>({});
@@ -31,23 +32,23 @@ export default function ProfilePage() {
       try {
         const [msgRes, fieldRes] = await Promise.all([
           fetch("/api/lora", { cache: "no-store" }),
-          fetch("/api/fields", { cache: "no-store" })
+          fetch("/api/fields", { cache: "no-store" }),
         ]);
         const messages = await msgRes.json();
         const fields = await fieldRes.json();
-  
+
         setFields(fields);
-  
+
         if (messages.length > 0) {
           const updatedMessages: Record<string, Message> = {};
-  
+
           messages.forEach((msg: Message) => {
             updatedMessages[msg.source] = {
               ...msg,
               timestamp: msg.timestamp || new Date().toISOString(),
             };
           });
-  
+
           setLatestMessages(updatedMessages);
         }
       } catch (error) {
@@ -55,27 +56,25 @@ export default function ProfilePage() {
       }
     }
 
-    
-    
-  
     fetchData();
     const interval = setInterval(fetchData, 1000);
-  
+
     return () => clearInterval(interval);
   }, []);
-  
 
   const sources = Object.keys(latestMessages);
 
   function getFieldNameFromSource(source: string): string {
     if (!source) return "";
-    const field = fields.find(
-      (f) => f.loraId?.toLowerCase() === source.toLowerCase()
-    );
+    const field = fields.find((f) => f.loraId?.toLowerCase() === source.toLowerCase());
     return field?.name || source;
   }
-  
-  
+
+  // Separate field and water level sensors
+  const fieldMessages = sources.filter((s) =>
+    fields.some((f) => f.loraId?.toLowerCase() === s.toLowerCase())
+  );
+  const waterLevelMessages = sources.filter((s) => !fieldMessages.includes(s));
 
   return (
     <div className="flex flex-row min-h-screen bg-white">
@@ -87,7 +86,9 @@ export default function ProfilePage() {
           <div className="flex justify-between items-center mb-6">
             <div>
               <h1 className="text-xl font-bold">Dashboard</h1>
-              <p className="text-gray-500 text-sm mt-1">Overview of your irrigation systems</p>
+              <p className="text-gray-500 text-sm mt-1">
+                Overview of your irrigation systems
+              </p>
             </div>
 
             {/* Search Bar */}
@@ -100,22 +101,47 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Cards */}
-          {sources.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {sources.map((source) => (
-                <DashboardCard
-                  key={source}
-                  source={getFieldNameFromSource(source)} // show field name instead of loraId
-                  message={latestMessages[source]}
-                />
-              ))}
-
-
-            </div>
-          ) : (
-            <p className="text-gray-500">Waiting for LoRa data...</p>
+          {/* Field Sensor Cards */}
+          {fieldMessages.length > 0 && (
+            <>
+              <h2 className="text-lg font-semibold text-gray-600 mb-2">
+                Field Sensors
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                {fieldMessages.map((source) => (
+                  <DashboardCard
+                    key={source}
+                    source={getFieldNameFromSource(source)}
+                    message={latestMessages[source]}
+                  />
+                ))}
+              </div>
+            </>
           )}
+
+          {/* Water Level Cards */}
+          {waterLevelMessages.length > 0 && (
+            <>
+              <h2 className="text-lg font-semibold text-gray-600 mb-2">
+                Water Level Sensors
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                {waterLevelMessages.map((source) => (
+                  <DashboardCard
+                    key={source}
+                    source={source}
+                    message={latestMessages[source]}
+                  />
+                ))}
+              </div>
+            </>
+          )}
+
+          {/* New Widget for Graphs above the latest schedules */}
+          {/* <DashboardGraphWidget sensorData={Object.values(latestMessages)} /> */}
+
+          {/* Latest Schedules Table */}
+          <LatestSchedulesWidget />
         </div>
 
         {/* Right Sidebar */}

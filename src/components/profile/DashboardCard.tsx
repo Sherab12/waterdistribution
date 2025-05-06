@@ -13,15 +13,29 @@ interface DashboardCardProps {
 export default function DashboardCard({ source, message }: DashboardCardProps) {
     const flowMatch = message.data.match(/Flow:\s*(-?\d+\.\d+)\s*L\/min/);
     const pressureMatch = message.data.match(/Pressure:\s*(-?\d+\.\d+)\s*psi/);
+    const waterLevelMatch = message.data.match(/WaterLevel:\s*(-?\d+\.\d+)\s*cm/);
 
     const flow = flowMatch ? parseFloat(flowMatch[1]) : null;
     const pressure = pressureMatch ? parseFloat(pressureMatch[1]) : null;
+    const waterLevel = waterLevelMatch ? parseFloat(waterLevelMatch[1]) : null;
 
     return (
         <div className="bg-white p-6 rounded-2xl shadow-md">
         <div className="text-gray-400 text-sm mb-2">{message.timestamp}</div>
-
         <h2 className="text-lg font-semibold text-gray-700 mb-2">{source}</h2>
+
+        {waterLevel !== null && (
+            <div className="mb-4">
+            <p className="text-sm text-gray-400">Water Level</p>
+            <p className="text-3xl font-bold text-purple-600">{waterLevel} cm</p>
+            <div className="w-full bg-gray-200 h-2 rounded-full mt-2">
+                <div
+                className="bg-purple-500 h-2 rounded-full"
+                style={{ width: `${Math.min((waterLevel / 200) * 100, 100)}%` }}
+                />
+            </div>
+            </div>
+        )}
 
         {flow !== null && (
             <div className="mb-4">

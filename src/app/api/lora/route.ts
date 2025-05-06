@@ -10,11 +10,10 @@ import SensorData from "@/models/SensorData";
 // Connect to MongoDB
 await connect();
 
-// Store the latest 100 messages in memory (if still needed)
-let messages: any[] = []; // If you don't need to store this in memory, you can remove this
+// Store the latest 100 messages in memory (optional)
+let messages: any[] = [];
 
-// Connect to MQTT broker
-const client = mqtt.connect("mqtt://10.2.5.142:1883");
+const client = mqtt.connect("mqtt://10.2.4.179:1883");
 
 client.on("connect", () => {
   console.log("✅ Connected to MQTT broker");
@@ -36,32 +35,46 @@ client.on("message", async (topic, messageBuffer) => {
     const { source, data } = payload;
     const timestamp = new Date();
 
-    // Save raw message in memory only (optional)
     messages.push({
       topic,
       ...payload,
       timestamp: timestamp.toISOString(),
     });
 
-    // Optionally, limit to latest 100 messages
-    if (messages.length > 100) {
-      messages.shift();
-    }
+    if (messages.length > 100) messages.shift();
 
-    // Extract sensor values
+    // Match known sensor data
     const flowMatch = data.match(/Flow: ([\d.]+) L\/min/);
     const pressureMatch = data.match(/Pressure: ([-\d.]+) psi/);
     const totalMatch = data.match(/TotalDelivered: ([\d.]+) L/);
+    const levelMatch = data.match(/WaterLevel: ([\d.]+) ?cm/);
 
-    if (!flowMatch || !pressureMatch || !totalMatch) {
-      console.warn("⚠️ Could not extract values from:", data);
-      return;
+    // Process water level independently
+    if (levelMatch) {
+      const level = parseFloat(levelMatch[1]);
+
+      // Find the dedicated level sensor (assuming only one exists)
+      const levelSensor = await Sensor.findOne({ type: "level" });
+
+      if (levelSensor) {
+        await SensorData.findOneAndUpdate(
+          { sensorId: levelSensor._id },
+          { value: level, timestamp },
+          { new: true, upsert: true }
+        );
+
+        console.log(`📏 Water level recorded: ${level} cm`);
+      } else {
+        console.warn("⚠️ No level sensor found in DB.");
+      }
     }
 
-    const pressure = parseFloat(pressureMatch[1]);
-    const totalDelivered = parseFloat(totalMatch[1]);
+    // Skip remaining processing if it's only water level
+    if (!flowMatch && !pressureMatch && !totalMatch) return;
 
-    // Find the field using loraId (case-insensitive)
+    const pressure = pressureMatch ? parseFloat(pressureMatch[1]) : null;
+    const totalDelivered = totalMatch ? parseFloat(totalMatch[1]) : null;
+
     const field = await Field.findOne({ loraId: new RegExp(`^${source}$`, "i") });
 
     if (!field) {
@@ -69,12 +82,8 @@ client.on("message", async (topic, messageBuffer) => {
       return;
     }
 
-    // Get sensors for the field
     const sensors = await Sensor.find({ fieldId: field._id });
 
-    console.log(`🔗 Matched field "${field.name}" with ${sensors.length} sensor(s)`);
-
-    // Update or insert latest data for each sensor
     for (const sensor of sensors) {
       let value: number | null = null;
 
@@ -82,14 +91,13 @@ client.on("message", async (topic, messageBuffer) => {
       if (sensor.type === "flow") value = totalDelivered;
 
       if (value !== null) {
-        // Update or insert only one document per sensorId
         await SensorData.findOneAndUpdate(
           { sensorId: sensor._id },
-          { value, timestamp },  // new data for the sensor
-          { new: true, upsert: true } // upsert ensures only one record per sensorId
+          { value, timestamp },
+          { new: true, upsert: true }
         );
 
-        console.log(`✅ Updated latest ${sensor.type} data for field ${field.name}`);
+        console.log(`✅ Updated ${sensor.type} data for ${field.name}`);
       }
     }
 
@@ -99,7 +107,7 @@ client.on("message", async (topic, messageBuffer) => {
   }
 });
 
-// API handler to return stored messages (Optional, remove if not needed)
+// Optional endpoint to return stored messages
 export async function GET() {
   return NextResponse.json(messages);
 }

@@ -106,7 +106,7 @@ const DeviceTable: React.FC<DeviceTableProps> = ({
             </thead>
             <tbody>
                 {list.map((device) => (
-                <tr key={device._id} className="border-b">
+                <tr key={device._id} className="border-b text-sm">
                     <td className="py-2 px-4 font-bold text-sm">{device.topic}</td>
                     {activeTab === "sensors" && (
                         <td className="py-2 px-4 capitalize text-sm">{device.type}</td>
